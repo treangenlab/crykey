@@ -21,6 +21,8 @@ from utils.file_loaders import load_metadata, load_vdb_mutation_data, merge_data
 from utils.quaid_func import get_counts, get_all_voc, get_recent_nt_df
 from utils.quarc_func import build_count_df
 
+import argparse
+
 def check_dataframe_status(df):
     print(f"Shape: {df.shape}")
     print(f"Features: {list(df.columns.values)}")
@@ -86,19 +88,36 @@ def build_genome2snp_database(merged_data, quarc_db_dir):
     
     return quarc_db
 
-if __name__ == "__main__":
-    # metadata_f = "/home/Users/ns58/SARS-CoV-2-MSA-10-21-2022/metadata.tsv"
-    # vdb_df_path = "/home/Users/ns58/WW/vdb_output/vdb_lineage_df_week.csv"
-    # trimmed_vdb_f = "/home/Users/ns58/SARS-CoV-2-MSA-10-21-2022/vdb_10212022_trimmed_nucl.txt"
-    # max_date = "2022-10-21"
-    # quarc_db_dir = 'quarc_dbs'
-
-    metadata_f = "/home/Users/ns58/MSA-01102023/metadata.tsv"
-    vdb_df_path = "/home/Users/ns58/MSA-01102023/vdb_output/vdb_lineage_df_week.csv"
-    trimmed_vdb_f = "/home/Users/ns58/MSA-01102023/vdb_01102023_trimmed_nucl.txt"
-    max_date = "2023-01-10"
-    quarc_db_dir = 'quarc_dbs_01102023_recombinant'
-    exclude_recombinant = False
+if __name__ == "__main__":    
+    '''main function'''
+    # Tested command:
+    # python crykey_build_db.py -m /home/Users/ns58/MSA-01102023/metadata.tsv -l /home/Users/ns58/MSA-01102023/vdb_output/vdb_lineage_df_week.csv -v /home/Users/ns58/MSA-01102023/vdb_01102023_trimmed_nucl.txt -d 2023-01-10
+    
+    parser = argparse.ArgumentParser(description="Building Crykey Database based on GISAID MSA.")
+    parser.add_argument("-m", "--metadata", type=str, required=True, help="Path to the metadata of the GISAID MSA in tsv format.")
+    parser.add_argument("-l", "--lineages", type=str, required=True, help="Path to the vdb lineage dataframe.")
+    parser.add_argument("-v", "--vdb", type=str, required=True, help="Path to the trimmed vdb file.")
+    parser.add_argument("-d", "--date", type=str, required=True, help="Date of the lastest record in the GISAID MSA, with the format [YYYY-MM-DD].")
+    parser.add_argument("-o", "--output", type=str, required=False, help="Output path of the Crykey Database. Default:[crykey_dbs]", default="crykey_dbs")
+    parser.add_argument('--exclude-recombinant', dest='norecomb', action='store_true',
+                        help="Exclude recombinant lineages. Default:[False]")
+    
+    parser.set_defaults(norecomb=False)
+    
+    args = parser.parse_args()
+    metadata_f = args.metadata
+    vdb_df_path = args.lineages
+    trimmed_vdb_f = args.vdb
+    max_date = args.date
+    quarc_db_dir = args.output
+    exclude_recombinant = args.norecomb
+    
+    # metadata_f = "/home/Users/ns58/MSA-01102023/metadata.tsv"
+    # vdb_df_path = "/home/Users/ns58/MSA-01102023/vdb_output/vdb_lineage_df_week.csv"
+    # trimmed_vdb_f = "/home/Users/ns58/MSA-01102023/vdb_01102023_trimmed_nucl.txt"
+    # max_date = "2023-01-10"
+    # quarc_db_dir = 'quarc_dbs_01102023_recombinant'
+    # exclude_recombinant = False
 
     if not os.path.exists(quarc_db_dir):
         os.mkdir(quarc_db_dir)

@@ -20,6 +20,8 @@ from Bio.SeqUtils import seq1
 from utils.file_loaders import load_metadata, load_vdb_mutation_data, merge_data, load_vdb_df, load_alias_data
 from utils.quaid_func import get_counts, get_all_voc, build_count_df, get_recent_nt_df
 
+import argparse
+
 def load_sublineage_mutations_db(quarc_db_path):
     file_to_read = open(os.path.join(quarc_db_path, "mutation50_lookup.pkl"), "rb")
     sublineage_mutations_lookup = pickle.load(file_to_read)
@@ -56,7 +58,7 @@ def annotate_variants(target_variants, date, site, reference, output_dir):
     return an annotation lookup table that maps from NT space to AA space
     NT mutation not in the coding region is excluded
     '''
-    vcf_reader = vcf.Reader(filename='dummy.vcf') 
+    vcf_reader = vcf.Reader(filename='utils/dummy.vcf') 
     for record in vcf_reader:
         template_record = record
         break
@@ -260,13 +262,9 @@ def search_valid_mutation_combinations(date, site, sorted_bam_f, vcf_lofreq_f, c
         
     return cryptic_df
 
-def main():
-    quarc_db_path = "quarc_dbs"
-    output_dir = "output"
-    
+def create_output_directory(output_dir):
     if not os.path.exists(output_dir):
         os.mkdir(output_dir)
-
     if not os.path.exists(os.path.join(output_dir, "cryptic_vcfs")):
         os.mkdir(os.path.join(output_dir, "cryptic_vcfs"))
     if not os.path.exists(os.path.join(output_dir, "cryptic_reads")):
@@ -276,24 +274,44 @@ def main():
     if not os.path.exists(os.path.join(output_dir, "cryptic_dataframe")):
         os.mkdir(os.path.join(output_dir, "cryptic_dataframe"))
 
+def main():
+    '''
+    main function
+    '''
+    # Tested command: python crykey_wastewater.py -i test_input_metadata.tsv -r /home/Users/yl181/wastewater/SARS-CoV-2-reference.fasta -d /home/Users/yl181/wastewater/quaid/quarc_dbs_01102023_incl_recombinant
+    
+    parser = argparse.ArgumentParser(description="Search for cryptic lineages in wastewater samples.")
+    parser.add_argument("-i", "--metadata", type=str, required=True, 
+                        help="Path to the input metadata, tab seperated dataframe with the following field on each row:\
+                        Sample_Collection_Date[MMDDYYYY], WWTP[str], Sorted_BAM[path-to-sorted-bam-file], VCF[path-to-VCF].")
+    parser.add_argument("-r", "--reference", type=str, required=True, help="Path to the Reference Genome.")
+    parser.add_argument("-d", "--database", type=str, required=False, help="Path to the Crykey Database Directory. Default:[crykey_dbs]", default="crykey_dbs")
+    parser.add_argument("-o", "--output", type=str, required=False, help="Output directory. Default:[crykey_output]", default="crykey_output")
+    
+    args = parser.parse_args()
+    
+    quarc_db_path = args.database
+    output_dir = args.output
+    reference = SeqIO.read(args.reference, "fasta")
+    metadata = pd.read_csv(args.metadata, sep='\t')
+    
+    create_output_directory(output_dir)
     sublineage_mutations_lookup = load_sublineage_mutations_db(quarc_db_path)
+    
+    for idx, row in metadata.iterrows():
+        date = row['Sample_Collection_Date']
+        site = row['WWTP']
+        sorted_bam_f = row['Sorted_BAM']
+        vcf_lofreq_f = row['VCF']
 
-    reference = SeqIO.read("/home/Users/yl181/wastewater/SARS-CoV-2-reference.fasta", "fasta")
-    bam_dir = f"/home/Users/yl181/wastewater/processed_data/Read-mapping"
-    vcf_dir = f"/home/Users/yl181/wastewater/processed_data/Variant-calling-LoFreq"
+        cryptic_df = pd.DataFrame(columns=['Date', 'Site', 'Nt Mutations', 'AA Mutations', 'Support DP', 'Total DP', 'Combined Freq'])
+        cryptic_df = search_valid_mutation_combinations(date, site, sorted_bam_f, vcf_lofreq_f, cryptic_df, sublineage_mutations_lookup, reference, output_dir)
+        if not cryptic_df.empty:
+            cryptic_df.to_csv(os.path.join(output_dir, "cryptic_dataframe", f'{date}_{site}.csv'), index=False)
 
-    for sample_date in sorted(os.listdir(bam_dir)):
-        date = sample_date[3:]
-        for sample_site in sorted(os.listdir(os.path.join(bam_dir, sample_date))):
-            site = sample_site.split("-")[0]
-            sorted_bam_f = os.path.join(bam_dir, f"HHD{date}", f"{site}-1", f"{site}-1.clean.sorted.bam")
-            vcf_lofreq_f = os.path.join(vcf_dir, f"HHD{date}", f"{site}-1.clean.vcf")
-            cryptic_df = pd.DataFrame(columns=['Date', 'Site', 'Nt Mutations', 'AA Mutations', 'Support DP', 'Total DP', 'Combined Freq'])
-            cryptic_df = search_valid_mutation_combinations(date, site, sorted_bam_f, vcf_lofreq_f, cryptic_df, sublineage_mutations_lookup, reference, output_dir)
-            if not cryptic_df.empty:
-                cryptic_df.to_csv(os.path.join(output_dir, "cryptic_dataframe", f'{date}_{site}.csv'), index=False)
+        print(f'Sample {date}_{site} processed.')
 				
-    print('Sample Processed.')
+    print('All Samples Processed.')
     
 if __name__ == '__main__':
     main()

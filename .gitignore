@@ -1,0 +1,8 @@
+.ipynb_checkpoints
+crykey_dbs
+crykey_output
+input_metadata.tsv
+test_input_metadata.tsv
+generate_input_metadata.ipynb
+utils/__pycache__
+utils/.ipynb_checkpoints
