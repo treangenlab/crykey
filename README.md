@@ -157,7 +157,7 @@ The script merges all information from all of the wastewater samples, and querie
 
 | Date | Site | Nt Mutations | AA Mutations | Support DP | Total DP | Combined Freq | Overall Occurrence | Lineage Occurrence |
 |------|------|--------------|--------------|------------|----------|---------------|--------------------|--------------------|
-| Sample collection date | user-defined WWTP identifier | multiple SNVs represented as [REF1][location1][ALT1];[REF2][location2][ALT2];... | number of reads that support all SNVs at the same time in the sample | total number of reads that span all SNV locations in the sample | allele frequency of the co-occurring SNVs | the overall occurrence of the co-occurring SNVs in the database | detailed information of the lineages that contain the co-occurring SNVs, in the format of [lineage1]:[occurrence1];[lineage2]:[occurrence2];... |
+| Sample collection date | user-defined WWTP identifier | multiple SNVs represented as [REF1][location1][ALT1];[REF2][location2][ALT2];... | the amino acid changes of the corresponding SNVs | number of reads that support all SNVs at the same time in the sample | total number of reads that span all SNV locations in the sample | allele frequency of the co-occurring SNVs | the overall occurrence of the co-occurring SNVs in the database | detailed information of the lineages that contain the co-occurring SNVs, in the format of [lineage1]:[occurrence1];[lineage2]:[occurrence2];... |
 
 Based on such information, you could determine which of the co-occurring SNVs qualify as cryptic lineage. We recommand that the qualified cryptic lineage should:
 
