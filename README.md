@@ -34,6 +34,10 @@ The code has been tested on MacOS Monterey 12.4 (Intel MacBook) and Ubuntu 18.04
 
 ## Usage
 
+### Download pre-build Crykey database
+
+A pre-build database based on publicly available SARS-CoV-2 genomes till Jan, 10, 2023 is provided and can be [downloaded from this link](https://rice.box.com/s/1rdad8b6q0f4uccmqohqczcvkcf65mgb). If you are using the pre-build Crykey database, you can now skip to [Searching co-occurring mutations in wastewater samples](https://github.com/treangenlab/crykey/tree/main#searching-co-occurring-mutations-in-wastewater-samples).
+
 ### MSA preprocessing and vdb precomputation work
 
 The first step of building a Crykey database is the download MSA and metadata provided in [GISAID EpiCov](https://gisaid.org/). After the MSA and metadata are downloaded. Some pre-computation work has to be done. If you are running [QuaID](https://gitlab.com/treangenlab/quaid), this step should be already included while building the QuaID database. If you wish to use your own BAM/VCF files generated with custom-made bioinformatics pipelines directly, please refer to [msa-preprocessing-and-database-construction](https://gitlab.com/treangenlab/quaid#msa-preprocessing-and-database-construction) for details.
