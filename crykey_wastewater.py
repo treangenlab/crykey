@@ -1,3 +1,6 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import pickle
 import glob
 import re
@@ -251,7 +254,8 @@ def search_valid_mutation_combinations(date, site, sorted_bam_f, vcf_lofreq_f, c
                                'Total DP': total_dp,
                                'Combined Freq': comb_freq}
                 
-                cryptic_df = cryptic_df.append(record_dict, ignore_index=True)
+                #cryptic_df = cryptic_df.append(record_dict, ignore_index=True)
+                cryptic_df = pd.concat([cryptic_df, pd.DataFrame([record_dict])], ignore_index=True)
     else:
         if (not os.path.exists(sorted_bam_f)) and os.path.exists(vcf_lofreq_f):
             print(date, site, 'Missing BAM File(s).')

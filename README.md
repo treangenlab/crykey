@@ -8,13 +8,27 @@ Wastewater monitoring is an important tool that can complement clinical testing 
 2. enables fast queries of mutation combinations against all publicly available SARS-CoV-2 genomes
 3. improving understanding of SARS-CoV-2 intrahost evolution and transmission events at a large scale
 
-It is highly recommanded that the wastewater samples are processed with [QuaID](https://gitlab.com/treangenlab/quaid), a novel bioinformatics tool (QuaID) for VoC detection based on quasiunique mutations that are being developed by [Treangenlab](https://gitlab.com/treangenlab).
+It is highly recommanded that the wastewater samples are processed with [QuaID](https://gitlab.com/treangenlab/quaid), a novel bioinformatics tool (QuaID) for VoC detection based on quasiunique mutations that are being developed by [Treangenlab](https://gitlab.com/treangenlab). The current version number of Crykey is v1.0
+
+## System requirements
+
+Crykey is supported on Linux system. The user should provide sufficient amount of RAM in order to load the classification database for Crykey. A standard database based on publicly available SARS-CoV-2 genomes till Jan, 10, 2023 takes more than 17GB. This tool (version 1.0) is tested on Linux (Ubuntu 18.04.5 LTS). There is no non-stardard hardware required for this software.
+
+## Installation
+
+To install Crykey, simply download the github repo. It's highly recommand that the dependencies is installed on a clean conda enviorment. To create a new conda enviorment, please follow [conda user guide](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html). After installing the required dependencies and downloading the pre-build database, the software is ready to be used. The typical install time should be no longer than 30 minutes.
+
+```
+git clone git@github.com:treangenlab/crykey.git
+cd crykey
+./install.sh
+```
 
 ## 3rd party software requirements 
 
 Below is the list of 3rd party software requirements. All required sofwtare can be installed via Miniconda after adding `bioconda` to the list of channels. Version specified in the parantheses is the version currently tested.
 
-* vdb (2.7)
+* vdb (2.7) (database building only)
 * samtools (1.7)
 * SnpEff
 
@@ -168,6 +182,15 @@ Based on such information, you could determine which of the co-occurring SNVs qu
 * occurred in multiple WWTP samples,
 * have sufficiant number of supporting reads,
 * the occurence in the database should be low. in other words, the cryptic lineage should be novo or at least rare in the database. 
+
+## Demo Run
+
+The following are a demo run with the test data we provide. The expected output are store in `demo/test_output`. The test run should take less then 10 minutes to finish. The majority time spend will be loading the database, so having multiple samples run as a batch would significantly increase efficiency of the tool. 
+```
+python crykey_wastewater.py -i demo/test_metadata.tsv -r demo/SARS-CoV-2-reference.fasta -d [PATH_TO_CRYKEY_DATABASE] -o [PATH_TO_OUTPUT_DIRECTORY]
+python crykey_query.py -d [PATH_TO_CRYKEY_DATABASE] -o [PATH_TO_OUTPUT_DIRECTORY]
+```
+
 
 ## Manuscript
 
